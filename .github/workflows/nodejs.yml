@@ -1,0 +1,37 @@
+name: Node CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [8.x, 10.x, 12.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install, build, and test
+      run: |
+        npm ci
+        npm run build --if-present
+        npm test
+      env:
+        CI: true
+    - name: build docker
+      run: |
+        cd docker
+        cp -r ../dist/ .
+        docker build . --file Dockerfile --tag warden111/everything-admin:latest
+    - name: push dockerhub
+      run: |
+        docker login --username=${{secrets.DOCKERHUB_USERNAME}} --password=${{secrets.DOCKERHUB_PASSWORD}}
+        docker push warden111/everything-admin:latest
+    - name: webhook
+      run: curl https://portainer.yangjiaying.xyz/api/webhooks/38f29995-83f6-49a5-9fd4-3b96a1b2aea9 -X POST
