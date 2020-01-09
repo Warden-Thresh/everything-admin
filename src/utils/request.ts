@@ -53,4 +53,19 @@ const request = extend({
   credentials: 'include', // 默认请求是否带上cookie
 });
 
+request.interceptors.request.use((url, options) => {
+  return (
+    {
+      options: {
+        ...options,
+        interceptors: true , 
+        headers: {
+          ...options.headers,
+          'Authorization': localStorage.getItem('jwToken')
+        }
+      },
+    }
+  );
+}, { global: true });
+
 export default request;

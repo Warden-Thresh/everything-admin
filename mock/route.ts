@@ -1,5 +1,5 @@
 export default {
-  '/api/auth_routes': {
+  '/mock/auth_routes': {
     '/form/advanced-form': { authority: ['admin', 'user'] },
   },
 };

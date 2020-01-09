@@ -10,6 +10,7 @@ import { getPageQuery } from '@/utils/utils';
 export interface StateType {
   status?: 'ok' | 'error';
   type?: string;
+  token?: string;
   currentAuthority?: 'user' | 'guest' | 'admin';
 }
 
@@ -38,10 +39,13 @@ const Model: LoginModelType = {
       const response = yield call(fakeAccountLogin, payload);
       yield put({
         type: 'changeLoginStatus',
-        payload: response,
+        payload: response.data,
       });
       // Login successfully
-      if (response.status === 'ok') {
+
+      console.log(response)
+      if (response.status === 200) {
+        localStorage.setItem('jwToken',response.data.token)
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
         let { redirect } = params as { redirect: string };
@@ -82,11 +86,12 @@ const Model: LoginModelType = {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
-      setAuthority(payload.currentAuthority);
+      console.log(payload)
+      setAuthority('admin');
       return {
         ...state,
-        status: payload.status,
-        type: payload.type,
+        status: 'ok',
+        type: 'account',
       };
     },
   },
